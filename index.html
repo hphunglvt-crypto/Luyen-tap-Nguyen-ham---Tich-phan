@@ -1,0 +1,681 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Luyện Nguyên Hàm Tích Phân</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400;1,8..60,600&display=swap">
+<style>
+/* Layout: graph-paper ground, one centred column; topic grid on home, question card + figure on quiz screens */
+:root{
+  --bg:#eef3f2; --card:#fbfdfc; --ink:#13303d; --mute:#5a727c; --line:#cfdcdc; --grid:#e3ecea;
+  --accent:#0a6a86; --accent-ink:#ffffff; --c0:#0a6a86; --c1:#c76a12; --c2:#2c8a4b;
+  --good:#1f7a43; --good-bg:#dff2e6; --bad:#b3261e; --bad-bg:#fbe4e1;
+  --sans:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --math:"Source Serif 4","Times New Roman",Georgia,serif;
+  --fs:16px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e1b21; --card:#15262e; --ink:#e3eef0; --mute:#97b0b8; --line:#2a424c; --grid:#1a2d35;
+  --accent:#4cc3e3; --accent-ink:#06222b; --c0:#4cc3e3; --c1:#f0a04b; --c2:#62c887;
+  --good:#7ddc9f; --good-bg:#17382a; --bad:#ff9a91; --bad-bg:#43211e; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1b21; --card:#15262e; --ink:#e3eef0; --mute:#97b0b8; --line:#2a424c; --grid:#1a2d35;
+  --accent:#4cc3e3; --accent-ink:#06222b; --c0:#4cc3e3; --c1:#f0a04b; --c2:#62c887;
+  --good:#7ddc9f; --good-bg:#17382a; --bad:#ff9a91; --bad-bg:#43211e; color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0; font:var(--fs)/1.55 var(--sans); color:var(--ink); background-color:var(--bg);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:28px 28px; min-height:100vh;
+  padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px)); padding-block:20px 48px;
+}
+body.big{--fs:21px}
+.wrap{max-width:880px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;flex-direction:column;min-width:0}
+.brand h1{margin:0;font-size:1.5em;line-height:1.2;text-wrap:balance;letter-spacing:-.01em}
+.brand p{margin:2px 0 0;color:var(--mute);font-size:.88em}
+.tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.chip{font-size:.85em;padding:6px 12px;border:1px solid var(--line);border-radius:999px;background:var(--card);white-space:nowrap}
+.chip b{font-variant-numeric:tabular-nums}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn{border:1px solid var(--line);background:var(--card);padding:8px 14px;border-radius:8px;font-weight:600}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+.vec{position:relative;display:inline-block;font-family:var(--math);font-style:italic;font-weight:600;margin-top:.55em}
+.vec::before{content:"→";position:absolute;left:0;right:0;top:-.95em;text-align:center;font-style:normal;font-size:.8em;line-height:1;font-family:var(--sans)}
+.mf{font-family:var(--math);font-size:1.02em}
+sub{font-size:.7em;line-height:0}
+
+.lead{margin:0;color:var(--mute)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.topic{text-align:left;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.topic:hover{border-color:var(--accent)}
+.topic .tag{font-size:.72em;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.topic h3{margin:0;font-size:1.02em}
+.topic .f{font-family:var(--math);color:var(--mute);font-size:.95em;line-height:2}
+.challenge{border:2px solid var(--accent);background:var(--card);border-radius:12px;padding:18px;display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.challenge h2{margin:0 0 4px;font-size:1.15em}
+.challenge p{margin:0;color:var(--mute);max-width:52ch}
+.board{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.board h2{margin:0 0 8px;font-size:1em}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.92em}
+th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--line);white-space:nowrap;font-variant-numeric:tabular-nums}
+th{color:var(--mute);font-weight:600;font-size:.82em}
+.note{font-size:.82em;color:var(--mute);margin:8px 0 0}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.stats{display:flex;gap:8px;flex-wrap:wrap}
+.prog{height:8px;border-radius:99px;background:var(--grid);border:1px solid var(--line);overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s}
+.qtitle{font-size:.8em;color:var(--mute);letter-spacing:.06em;text-transform:uppercase;font-weight:600}
+.qtext{font-size:1.18em;line-height:2.1;margin:0;font-family:var(--math)}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.opt{display:flex;gap:10px;align-items:center;text-align:left;border:1.5px solid var(--line);background:var(--bg);border-radius:10px;padding:12px 14px;font-family:var(--math);font-size:1.1em;min-width:0;overflow-wrap:anywhere}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt .k{font-family:var(--sans);font-size:.75em;font-weight:700;width:1.9em;height:1.9em;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;flex:none}
+.opt.right{background:var(--good-bg);border-color:var(--good)}
+.opt.wrong{background:var(--bad-bg);border-color:var(--bad)}
+.opt:disabled{cursor:default;color:inherit}
+.fb{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,300px);gap:16px;align-items:start;border-top:1px dashed var(--line);padding-top:16px}
+.fb[hidden]{display:none!important}
+.verdict{font-weight:700;margin:0 0 6px}
+.verdict.ok{color:var(--good)} .verdict.no{color:var(--bad)}
+.why{font-family:var(--math);line-height:2.1}
+.figure{width:100%;max-width:300px;justify-self:center}
+.figure svg{width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:8px;background:var(--card)}
+.nextrow{grid-column:1/-1;display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label,.legend{font-weight:600}
+input[type=text]{font:inherit;padding:10px 12px;border:1.5px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);width:100%}
+.checks{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
+.check{display:flex;gap:10px;align-items:center;border:1.5px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--bg);cursor:pointer;min-width:0}
+.check input{width:1.1em;height:1.1em;accent-color:var(--accent);flex:none}
+.big-result{text-align:center;padding:12px 0}
+.big-result .num{font-size:3em;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.sum div{border:1px solid var(--line);border-radius:8px;padding:10px;text-align:center;background:var(--bg)}
+.sum b{display:block;font-size:1.3em;font-variant-numeric:tabular-nums}
+.sum span{font-size:.8em;color:var(--mute)}
+.row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.msg{font-size:.85em;color:var(--bad);min-height:1.2em;margin:0}
+
+/* figure svg */
+.g-grid{stroke:var(--grid);stroke-width:1}
+.g-axis{stroke:var(--mute);stroke-width:1.3}
+.g-tick{fill:var(--mute);font:9px var(--sans)}
+.g-pt{fill:var(--ink)}
+.g-txt{fill:var(--ink);font:italic 600 13px var(--math);paint-order:stroke;stroke:var(--card);stroke-width:3px;stroke-linejoin:round}
+.g-poly{fill:none;stroke:var(--mute);stroke-width:1.2;stroke-dasharray:4 3}
+.g-v0{stroke:var(--c0);stroke-width:2.2;fill:none} .g-v1{stroke:var(--c1);stroke-width:2.2;fill:none} .g-v2{stroke:var(--c2);stroke-width:2.2;fill:none}
+.mk0{fill:var(--c0)} .mk1{fill:var(--c1)} .mk2{fill:var(--c2)}
+
+@media (max-width:640px){
+  .opts{grid-template-columns:1fr}
+  .fb{grid-template-columns:1fr}
+  .brand h1{font-size:1.3em}
+}
+@media (prefers-reduced-motion:reduce){.prog i{transition:none}}
+
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.3;margin:0 .15em;font-size:.95em}
+.fr>span:first-child{border-bottom:1.5px solid currentColor;padding:0 .25em}
+.fr>span:last-child{padding:0 .25em}
+.int{display:inline-flex;align-items:center;font-size:1.5em;line-height:1;vertical-align:middle;font-family:var(--math)}
+.int .lim{display:inline-flex;flex-direction:column;justify-content:space-between;font-size:.56em;line-height:1.2;height:2.1em;margin-left:-.1em;font-family:var(--math)}
+.g-fill{fill:var(--c0);opacity:.2;stroke:none}
+.qtext,.opt,.why,.topic .f{line-height:2.4}
+.opt{line-height:2}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>Luyện Nguyên Hàm Tích Phân</h1>
+      <p>Toán lớp 12 · Nguyên hàm, tích phân và ứng dụng</p>
+    </div>
+    <div class="tools">
+      <span class="chip">Kỷ lục: <b id="record">0</b> điểm</span>
+      <button class="btn ghost" id="btnBig" type="button" aria-pressed="false" title="Phóng to chữ để chiếu lên màn hình lớp">Chế độ trình chiếu</button>
+    </div>
+  </header>
+
+  <!-- HOME -->
+  <main id="home" class="wrap" style="gap:20px">
+    <p class="lead">Chọn một dạng để luyện từng công thức, hoặc vào Thử thách để thi đấu chuỗi 20 câu. Phím 1–4 hoặc A–D chọn đáp án, Enter sang câu tiếp.</p>
+    <section class="grid" id="topics" aria-label="Các dạng luyện tập"></section>
+    <section class="challenge">
+      <div>
+        <h2>Thử thách chuỗi 20 câu</h2>
+        <p>Nhập tên, chọn các dạng muốn thi. Đúng +1 điểm, sai −2 điểm và chuỗi về 0. Trả lời đúng 20 câu liên tiếp để thắng.</p>
+      </div>
+      <button class="btn primary" id="btnChallenge" type="button">Vào thử thách</button>
+    </section>
+    <section class="board" id="board" hidden>
+      <h2>Bảng vinh danh trên máy này</h2>
+      <div class="tablewrap"><table><thead><tr><th>Học sinh</th><th>Điểm</th><th>Chuỗi dài nhất</th><th>Kết quả</th><th>Ngày</th></tr></thead><tbody id="boardBody"></tbody></table></div>
+      <p class="note">Bảng này lưu trong trình duyệt của thiết bị đang dùng, không đồng bộ giữa các máy.</p>
+      <button class="btn ghost" id="btnClear" type="button" style="margin-top:8px">Xóa bảng</button>
+    </section>
+  </main>
+
+  <!-- SETUP -->
+  <section id="setup" class="panel" hidden>
+    <div class="bar"><h2 style="margin:0">Thiết lập thử thách</h2><button class="btn ghost" data-go="home" type="button">Hủy</button></div>
+    <div class="field">
+      <label for="name">Họ và tên học sinh</label>
+      <input type="text" id="name" maxlength="40" autocomplete="off" placeholder="Ví dụ: Nguyễn Minh Anh">
+    </div>
+    <div class="field">
+      <span class="legend">Các dạng tham gia</span>
+      <div class="checks" id="checks"></div>
+    </div>
+    <p class="msg" id="setupMsg" role="alert"></p>
+    <div><button class="btn primary" id="btnStart" type="button">Bắt đầu (+1 / −2)</button></div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="quiz" class="panel" hidden>
+    <div class="bar">
+      <div class="stats" id="stats"></div>
+      <button class="btn ghost" id="btnExit" type="button">Thoát</button>
+    </div>
+    <div class="prog" id="progWrap" hidden><i id="prog"></i></div>
+    <div>
+      <div class="qtitle" id="qtitle"></div>
+      <p class="qtext" id="qtext"></p>
+    </div>
+    <div class="opts" id="opts" role="group" aria-label="Các đáp án"></div>
+    <div class="fb" id="fb" hidden aria-live="polite">
+      <div>
+        <p class="verdict" id="verdict"></p>
+        <div class="why" id="why"></div>
+      </div>
+      <div class="figure" id="figure"></div>
+      <div class="nextrow"><button class="btn primary" id="btnNext" type="button">Câu tiếp theo ➔</button></div>
+    </div>
+  </section>
+
+  <!-- RESULT -->
+  <section id="result" class="panel" hidden>
+    <div class="big-result">
+      <div class="qtitle" id="resName"></div>
+      <div class="num" id="resScore">0</div>
+      <p id="resMsg" class="lead"></p>
+    </div>
+    <div class="sum" id="resSum"></div>
+    <div class="row"><button class="btn primary" id="btnAgain" type="button">Chơi lại</button><button class="btn" data-go="home" type="button">Về trang chủ</button></div>
+  </section>
+</div>
+
+<script>
+//<GEN
+const ri=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const nz=(a,b)=>{let v;do v=ri(a,b);while(v===0);return v};
+const pick=a=>a[ri(0,a.length-1)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=ri(0,i);[a[i],a[j]]=[a[j],a[i]]}return a};
+const N=x=>x<0?'−'+(-x):''+x;
+const PR=x=>x<0?'('+N(x)+')':''+x;
+const gcd=(a,b)=>b?gcd(b,a%b):Math.abs(a);
+const R=(n,d=1)=>{const g=gcd(n,d)||1;n/=g;d/=g;if(d<0){n=-n;d=-d}return[n,d]};
+const cf=a=>a===1?'':a===-1?'−':N(a);
+const fr=(n,d)=>`<span class="fr"><span>${n}</span><span>${d}</span></span>`;
+const frS=(n,d)=>{const r=R(n,d);return r[1]===1?N(r[0]):`${r[0]<0?'−':''}${fr(Math.abs(r[0]),r[1])}`};
+const sup=(s,e)=>e===1?s:`${s}<sup>${e}</sup>`;
+const lin=(a,b)=>`${cf(a)}x${b<0?' − '+(-b):b>0?' + '+b:''}`;
+const I=f=>`<span class="int">∫</span> ${f} <i>dx</i>`;
+const Id=(a,b,f)=>`<span class="int">∫<span class="lim"><span>${b}</span><span>${a}</span></span></span> ${f} <i>dx</i>`;
+const W=s=>`${s} + <i>C</i>`;
+const piS=(n,d)=>{const r=R(n,d),a=r[0],b=r[1];const t=(a===1?'':a)+'π';return b===1?t:fr(t,b)};
+
+function mono(r,e){
+  const n=r[0],d=r[1],s=n<0?-1:1,a=Math.abs(n);
+  const xv=e===0?'':sup('x',e);
+  const num=e===0?''+a:((a===1?'':a)+xv);
+  return{s,body:d===1?num:fr(num,d)};
+}
+function poly(terms){
+  terms=terms.filter(t=>t.c[0]!==0);
+  if(!terms.length)return '0';
+  let out='';
+  terms.forEach((t,i)=>{const m=mono(t.c,t.e);out+=i===0?(m.s<0?'−':''):(m.s<0?' − ':' + ');out+=m.body});
+  return out;
+}
+const polyI=cs=>poly(cs.map(([c,e])=>({c:R(c),e})));
+const anti=terms=>terms.map(t=>({c:R(t.c[0],t.c[1]*(t.e+1)),e:t.e+1}));
+const pv=(cs,x)=>cs.reduce((s,[c,e])=>s+c*Math.pow(x,e),0);
+const signedFr=(num,den)=>Math.abs(den)===1?(den<0?'−':'')+num:`${den<0?'−':''}${fr(num,Math.abs(den))}`;
+
+const GEN={1:[],2:[],3:[],4:[],5:[],6:[]};
+
+/* ---- Dạng 1: nguyên hàm cơ bản ---- */
+GEN[1].push(()=>{
+  const n=ri(2,6),F=W(poly([{c:R(1,n+1),e:n+1}]));
+  return{t:`Họ nguyên hàm của hàm số f(x) = x<sup>${n}</sup> là:`,correct:F,
+    wrongs:[W(poly([{c:R(1,n),e:n}])),W(poly([{c:R(n),e:n-1}])),W(sup('x',n+1)),W(poly([{c:R(1,n+1),e:n}]))],
+    pad:()=>W(poly([{c:R(1,ri(2,9)),e:ri(2,7)}])),
+    why:`Áp dụng ∫ x<sup>n</sup> <i>dx</i> = ${fr('x<sup>n+1</sup>','n + 1')} + <i>C</i> với n = ${n}: ${I('x<sup>'+n+'</sup>')} = ${F}.`,fig:null};
+});
+GEN[1].push(()=>{
+  const a=pick([2,3,5]);
+  const items=[
+    ['sin x','−cos x',['cos x','sin x','−sin x']],
+    ['cos x','sin x',['−sin x','cos x','−cos x']],
+    ['e<sup>x</sup>','e<sup>x</sup>',[fr('e<sup>x</sup>','x'),'x·e<sup>x−1</sup>','ln|x|']],
+    [fr(1,'x'),'ln|x|',[`−${fr(1,'x²')}`,'e<sup>x</sup>',fr(1,'x²')]],
+    [fr(1,'cos²x'),'tan x',['−tan x','cot x','−cot x']],
+    [fr(1,'sin²x'),'−cot x',['cot x','tan x','−tan x']],
+    [`${a}<sup>x</sup>`,fr(`${a}<sup>x</sup>`,`ln ${a}`),[`${a}<sup>x</sup> ln ${a}`,`${a}<sup>x</sup>`,fr(`${a}<sup>x</sup>`,a)]],
+    ['√x',fr('2x√x',3),[fr('3x√x',2),fr('x√x',3),fr(1,'2√x')]],
+    [fr(1,'x²'),`−${fr(1,'x')}`,[fr(1,'x'),`−${fr(1,'x³')}`,`−${fr(2,'x³')}`]]
+  ];
+  const [f,c,w]=pick(items);
+  return{t:`Họ nguyên hàm của hàm số f(x) = ${f} là:`,correct:W(c),wrongs:w.map(W),pad:()=>W(pick(items)[1]),
+    why:`Theo bảng nguyên hàm cơ bản: ${I(f)} = ${W(c)}.`,fig:null};
+});
+
+/* ---- Dạng 2: tổng, hằng số nhân, f(ax+b) ---- */
+GEN[2].push(()=>{
+  const a=nz(-5,5),b=nz(-6,6),c=nz(-6,6);
+  const ts=[{c:[a,1],e:2},{c:[b,1],e:1},{c:[c,1],e:0}];
+  const A=anti(ts);
+  const F=W(poly(A));
+  return{t:`Họ nguyên hàm của hàm số f(x) = ${polyI([[a,2],[b,1],[c,0]])} là:`,correct:F,
+    wrongs:[W(poly(ts.map(t=>({c:t.c,e:t.e+1})))),W(polyI([[2*a,1],[b,0]])),W(poly([A[0],A[1],{c:R(c),e:0}])),W(poly([{c:R(a,2),e:3},A[1],A[2]]))],
+    pad:()=>W(poly([{c:R(a+ri(-2,2),3),e:3},{c:R(b+ri(-2,2),2),e:2},{c:R(c+ri(-2,2)),e:1}])),
+    why:`Nguyên hàm từng số hạng: ∫ ${a===1?'':PR(a)}x² <i>dx</i> = ${poly([A[0]])}, ∫ ${PR(b)}x <i>dx</i> = ${poly([A[1]])}, ∫ ${PR(c)} <i>dx</i> = ${poly([A[2]])}. Vậy ${I(polyI([[a,2],[b,1],[c,0]]))} = ${F}.`,
+    fig:null,chk:{der:[x=>(a/3)*x**3+(b/2)*x*x+c*x,x=>a*x*x+b*x+c]}};
+});
+GEN[2].push(()=>{
+  const a=pick([2,3,4,-2]),b=nz(-5,5),n=ri(2,4),L=lin(a,b),base=`(${L})`;
+  const den=a*(n+1);
+  const F=W(signedFr(`${base}<sup>${n+1}</sup>`,den));
+  return{t:`Họ nguyên hàm của hàm số f(x) = (${L})<sup>${n}</sup> là:`,correct:F,
+    wrongs:[W(fr(`${base}<sup>${n+1}</sup>`,n+1)),W(signedFr(`${base}<sup>${n+1}</sup>`,a)),W(fr(`${PR(a)}${base}<sup>${n+1}</sup>`,n+1)),W(signedFr(`${base}<sup>${n}</sup>`,a*n))],
+    pad:()=>W(signedFr(`${base}<sup>${n+1}</sup>`,ri(2,12)*pick([-1,1]))),
+    why:`∫ (ax + b)<sup>n</sup> <i>dx</i> = ${fr('(ax + b)<sup>n+1</sup>','a(n + 1)')} + <i>C</i>. Ở đây a = ${N(a)}, n = ${n}, mẫu số a(n + 1) = ${N(den)}.`,
+    fig:null,chk:{der:[x=>Math.pow(a*x+b,n+1)/den,x=>Math.pow(a*x+b,n)]}};
+});
+GEN[2].push(()=>{
+  const a=pick([2,3,4,5]),b=nz(-3,3),L=lin(a,b),inv=fr(1,a);
+  const items=[
+    [`cos(${L})`,`${inv}sin(${L})`,[`${a}sin(${L})`,`sin(${L})`,`−${inv}sin(${L})`]],
+    [`sin(${L})`,`−${inv}cos(${L})`,[`${inv}cos(${L})`,`−${a}cos(${L})`,`cos(${L})`]],
+    [`e<sup>${L}</sup>`,`${inv}e<sup>${L}</sup>`,[`${a}e<sup>${L}</sup>`,`e<sup>${L}</sup>`,fr(`e<sup>${L}</sup>`,L)]],
+    [fr(1,L),`${inv}ln|${L}|`,[`${a}ln|${L}|`,`ln|${L}|`,`−${fr(1,`${a}(${L})²`)}`]]
+  ];
+  const [f,c,w]=pick(items);
+  return{t:`Họ nguyên hàm của hàm số f(x) = ${f} là:`,correct:W(c),wrongs:w.map(W),pad:()=>W(pick(items)[1]),
+    why:`Với f(ax + b): ∫ f(ax + b) <i>dx</i> = ${fr(1,'a')}F(ax + b) + <i>C</i>, trong đó a = ${a}. Vậy ${I(f)} = ${W(c)}.`,fig:null};
+});
+
+/* ---- Dạng 3: điều kiện, đạo hàm ngược ---- */
+GEN[3].push(()=>{
+  const p=nz(-2,2),q=nz(-3,3),r=nz(-4,4),C0=nz(-6,6),s=p+q+r,y0=s+C0;
+  const ok=polyI([[p,3],[q,2],[r,1],[C0,0]]);
+  return{t:`Biết F(x) là một nguyên hàm của hàm số f(x) = ${polyI([[3*p,2],[2*q,1],[r,0]])} và F(1) = ${y0}. Tìm F(x).`,
+    correct:ok,wrongs:[polyI([[p,3],[q,2],[r,1],[y0,0]]),polyI([[p,3],[q,2],[r,1],[-C0,0]]),polyI([[p,3],[q,2],[r,1],[y0+s,0]]),polyI([[p,3],[q,2],[r,1],[C0+1,0]])],
+    pad:()=>polyI([[p,3],[q,2],[r,1],[C0+ri(-4,4),0]]),
+    why:`F(x) = ${polyI([[p,3],[q,2],[r,1]])} + <i>C</i>. Từ F(1) = ${y0} ta có ${N(s)} + <i>C</i> = ${y0}, suy ra <i>C</i> = ${N(C0)}. Vậy F(x) = ${ok}.`,
+    fig:null,chk:{der:[x=>pv([[p,3],[q,2],[r,1],[C0,0]],x),x=>pv([[3*p,2],[2*q,1],[r,0]],x)]}};
+});
+GEN[3].push(()=>{
+  const p=nz(-2,3),q=nz(-3,3),r=nz(-4,4),c0=nz(-5,5);
+  const Fs=polyI([[p,3],[q,2],[r,1],[c0,0]]);
+  const f=[[3*p,2],[2*q,1],[r,0]];
+  return{t:`Hàm số F(x) = ${Fs} là một nguyên hàm của hàm số nào sau đây?`,
+    correct:`f(x) = ${polyI(f)}`,
+    wrongs:[`f(x) = ${polyI([[6*p,1],[2*q,0]])}`,`f(x) = ${polyI([[p,2],[q,1],[r,0]])}`,`f(x) = ${poly(anti([{c:[p,1],e:3},{c:[q,1],e:2},{c:[r,1],e:1},{c:[c0,1],e:0}]))}`,`f(x) = ${polyI([[3*p,2],[2*q,1],[r,0],[c0,0]])}`],
+    pad:()=>`f(x) = ${polyI([[3*p+ri(-2,2),2],[2*q+ri(-2,2),1],[r+ri(-2,2),0]])}`,
+    why:`F(x) là nguyên hàm của f(x) khi F′(x) = f(x). Đạo hàm từng số hạng, hằng số ${N(c0)} cho đạo hàm bằng 0: F′(x) = ${polyI(f)}.`,fig:null};
+});
+GEN[3].push(()=>{
+  const a=nz(-3,3),b=nz(-5,5),C0=nz(-5,5),k=ri(2,3);
+  const y0=a+b+C0,val=a*k*k+b*k+C0;
+  return{t:`Biết F(x) là một nguyên hàm của hàm số f(x) = ${polyI([[2*a,1],[b,0]])} và F(1) = ${y0}. Tính F(${k}).`,
+    correct:N(val),wrongs:[N(a*k*k+b*k+y0),N(a*k*k+b*k),N(a*k*k+b*k-C0),N(val+1)],pad:()=>N(val+ri(-6,6)),
+    why:`F(x) = ${polyI([[a,2],[b,1]])} + <i>C</i>. Từ F(1) = ${y0} suy ra <i>C</i> = ${N(C0)}. Vậy F(${k}) = ${N(a*k*k)} ${b*k<0?'−':'+'} ${Math.abs(b*k)} ${C0<0?'−':'+'} ${Math.abs(C0)} = ${N(val)}.`,
+    fig:null,chk:{der:[x=>a*x*x+b*x+C0,x=>2*a*x+b]}};
+});
+
+/* ---- Dạng 4: tích phân, tính chất ---- */
+GEN[4].push(()=>{
+  const deg=pick([1,2]);let cs;
+  if(deg===2)cs=[[3*nz(-2,2),2],[2*nz(-3,3),1],[nz(-4,4),0]];else cs=[[2*nz(-3,3),1],[nz(-5,5),0]];
+  const F=cs.map(([c,e])=>[c/(e+1),e+1]);
+  let lo=ri(-2,1),hi=lo+ri(1,3);
+  const val=pv(F,hi)-pv(F,lo);
+  return{t:`Tính tích phân I = ${Id(lo,hi,polyI(cs))}`,
+    correct:N(val),wrongs:[N(pv(F,hi)+pv(F,lo)),N(pv(F,lo)-pv(F,hi)),N(pv(cs,hi)-pv(cs,lo)),N(pv(F,hi))],pad:()=>N(val+ri(-6,6)),
+    why:`Nguyên hàm F(x) = ${polyI(F)}. I = F(${N(hi)}) − F(${N(lo)}) = ${N(pv(F,hi))} − ${PR(pv(F,lo))} = ${N(val)}.`,
+    fig:{curves:[{fn:x=>pv(cs,x),x0:lo-1,x1:hi+1,c:0,l:'y=f(x)'}],shade:{f:x=>pv(cs,x),g:null,a:lo,b:hi}},
+    chk:{int:[x=>pv(cs,x),lo,hi,val]}};
+});
+GEN[4].push(()=>{
+  const a=ri(0,2),c=a+ri(1,3),b=c+ri(1,3),A=nz(-6,6),B=nz(-6,6);
+  return{t:`Cho ${Id(a,c,'f(x)')} = ${N(A)} và ${Id(c,b,'f(x)')} = ${N(B)}. Tính ${Id(a,b,'f(x)')}.`,
+    correct:N(A+B),wrongs:[N(A-B),N(B-A),N(A*B),N(-(A+B))],pad:()=>N(A+B+ri(-5,5)),
+    why:`Tính chất cộng cận: ${Id('a','b','f(x)')} = ${Id('a','c','f(x)')} + ${Id('c','b','f(x)')}. Vậy kết quả bằng ${N(A)} + ${PR(B)} = ${N(A+B)}.`,fig:null};
+});
+GEN[4].push(()=>{
+  const a=ri(-1,1),b=a+ri(1,3),A=nz(-5,5),B=nz(-5,5),k=nz(-3,3),l=nz(-3,3);
+  const val=k*A+l*B;
+  const ex=`${cf(k)}f(x) ${l<0?'−':'+'} ${Math.abs(l)===1?'':Math.abs(l)}g(x)`;
+  return{t:`Cho ${Id(a,b,'f(x)')} = ${N(A)} và ${Id(a,b,'g(x)')} = ${N(B)}. Tính ${Id(a,b,`[${ex}]`)}.`,
+    correct:N(val),wrongs:[N(k*A-l*B),N(A+B),N(k*B+l*A),N(-val)],pad:()=>N(val+ri(-6,6)),
+    why:`Tích phân của tổng bằng tổng các tích phân và hằng số được đưa ra ngoài: ${N(k)} · ${PR(A)} + ${PR(l)} · ${PR(B)} = ${N(val)}.`,fig:null};
+});
+GEN[4].push(()=>{
+  const a=ri(-1,1),b=a+ri(1,3),A=nz(-5,5),k=nz(-3,3),m=nz(-4,4);
+  const val=k*A+m*(b-a);
+  return{t:`Cho ${Id(a,b,'f(x)')} = ${N(A)}. Tính ${Id(a,b,`[${cf(k)}f(x) ${m<0?'−':'+'} ${Math.abs(m)}]`)}.`,
+    correct:N(val),wrongs:[N(k*A+m),N(k*A),N(k*A-m*(b-a)),N(k*A+m*(b+a))],pad:()=>N(val+ri(-6,6)),
+    why:`${Id(a,b,N(m))} = ${PR(m)}(${N(b)} − ${PR(a)}) = ${N(m*(b-a))}. Vậy kết quả = ${N(k)} · ${PR(A)} + ${PR(m*(b-a))} = ${N(val)}.`,fig:null};
+});
+
+/* ---- Dạng 5: mũ, lượng giác, 1/x ---- */
+const E=(f,a,b,c,w,fn,an,bn,vn,lf)=>({f,a,b,c,w,fn,an,bn,vn,lf});
+GEN[5].push(()=>{
+  const T=[
+    E('sin x',0,'π','2',['0','−2','1','π'],Math.sin,0,Math.PI,2,'y=sin x'),
+    E('cos x',0,'π/2','1',['0','−1','2','π/2'],Math.cos,0,Math.PI/2,1,'y=cos x'),
+    E(fr(1,'x'),1,'e','1',['e','e − 1','0','2'],x=>1/x,1,Math.E,1,'y=1/x'),
+    E(fr(1,'x'),1,2,'ln 2',[fr(1,2),'ln 3','−ln 2','2'],x=>1/x,1,2,Math.LN2,'y=1/x'),
+    E('e<sup>x</sup>',0,1,'e − 1',['e','1 − e','e + 1','1'],Math.exp,0,1,Math.E-1,'y=eˣ'),
+    E('e<sup>x</sup>',0,'ln 2','1',['2','ln 2','3','0'],Math.exp,0,Math.LN2,1,'y=eˣ'),
+    E(fr(1,'cos²x'),0,'π/4','1',['0','π/4','√2','−1'],x=>1/Math.cos(x)**2,0,Math.PI/4,1,'y=1/cos²x'),
+    E(fr(1,'x²'),1,2,fr(1,2),['−'+fr(1,2),fr(3,2),'ln 2','1'],x=>1/(x*x),1,2,0.5,'y=1/x²'),
+    E('e<sup>2x</sup>',0,1,fr('e² − 1',2),[fr('e²',2),'e² − 1',fr('e² + 1',2),fr('e − 1',2)],x=>Math.exp(2*x),0,1,(Math.E**2-1)/2,'y=e²ˣ'),
+    E('sin 2x',0,'π/2','1',['2','0','−1',fr(1,2)],x=>Math.sin(2*x),0,Math.PI/2,1,'y=sin 2x'),
+    E('cos x',0,'π','0',['1','−1','2','π'],Math.cos,0,Math.PI,0,'y=cos x')
+  ];
+  const AN=['−cos x','sin x','ln|x|','ln|x|','e<sup>x</sup>','e<sup>x</sup>','tan x','−'+fr(1,'x'),fr('e<sup>2x</sup>',2),'−'+fr('cos 2x',2),'sin x'];
+  const ix=ri(0,T.length-1),t=T[ix];
+  return{t:`Tính tích phân I = ${Id(t.a,t.b,t.f)}`,correct:t.c,wrongs:t.w,pad:()=>pick(T).c,
+    why:`Một nguyên hàm của f(x) là F(x) = ${AN[ix]}. Theo Newton–Leibniz, I = F(${t.b}) − F(${t.a}) = ${t.c}.`,
+    fig:{curves:[{fn:t.fn,x0:t.an-0.5,x1:t.bn+0.5,c:0,l:t.lf}],shade:{f:t.fn,g:null,a:t.an,b:t.bn}},chk:{int:[t.fn,t.an,t.bn,t.vn]}};
+});
+GEN[5].push(()=>{
+  const a=nz(1,4),b=nz(-3,3);
+  const ans=`${2*a} ${b<0?'−':'+'} ${Math.abs(b)===1?'':Math.abs(b)}π`;
+  return{t:`Tính tích phân I = ${Id(0,'π',`(${a===1?'':a}sin x ${b<0?'−':'+'} ${Math.abs(b)})`)}`,
+    correct:ans,wrongs:[`${a} ${b<0?'−':'+'} ${Math.abs(b)===1?'':Math.abs(b)}π`,`${2*a}`,`−${2*a} ${b<0?'−':'+'} ${Math.abs(b)===1?'':Math.abs(b)}π`,`${2*a} ${b<0?'−':'+'} ${Math.abs(b)}`],
+    pad:()=>`${2*a+ri(-3,3)} ${b<0?'−':'+'} ${Math.abs(b)===1?'':Math.abs(b)}π`,
+    why:`${Id(0,'π','sin x')} = [−cos x]<sub>0</sub><sup>π</sup> = 2 và ${Id(0,'π',N(Math.abs(b)))} = ${Math.abs(b)}π. Vậy I = ${a} · 2 ${b<0?'−':'+'} ${Math.abs(b)}π = ${ans}.`,
+    fig:null,chk:{int:[x=>a*Math.sin(x)+b,0,Math.PI,2*a+b*Math.PI]}};
+});
+GEN[5].push(()=>{
+  const k=ri(2,7);
+  return{t:`Tính tích phân I = ${Id(0,`ln ${k}`,'e<sup>x</sup>')}`,
+    correct:N(k-1),wrongs:[N(k),N(k+1),`ln ${k}`,N(1-k)],pad:()=>N(ri(0,9)),
+    why:`I = [e<sup>x</sup>]<sub>0</sub><sup>ln ${k}</sup> = e<sup>ln ${k}</sup> − e<sup>0</sup> = ${k} − 1 = ${k-1}.`,
+    fig:{curves:[{fn:Math.exp,x0:-0.5,x1:Math.log(k)+0.3,c:0,l:'y=eˣ'}],shade:{f:Math.exp,g:null,a:0,b:Math.log(k)}},chk:{int:[Math.exp,0,Math.log(k),k-1]}};
+});
+GEN[5].push(()=>{
+  const k=ri(2,5);
+  return{t:`Tính tích phân I = ${Id(1,`e<sup>${k}</sup>`,fr(1,'x'))}`,
+    correct:N(k),wrongs:[`e<sup>${k}</sup>`,`e<sup>${k}</sup> − 1`,N(k-1),N(k+1)],pad:()=>N(ri(0,9)),
+    why:`I = [ln|x|]<sub>1</sub><sup>e<sup>${k}</sup></sup> = ln e<sup>${k}</sup> − ln 1 = ${k} − 0 = ${k}.`,fig:null,chk:{int:[x=>1/x,1,Math.exp(k),k]}};
+});
+
+/* ---- Dạng 6: ứng dụng ---- */
+const gp=(n,d)=>({pts:[],vecs:[]});
+GEN[6].push(()=>{
+  const k=ri(1,4),S=frS(k**3,6);
+  const f=x=>k*x,g=x=>x*x;
+  return{t:`Diện tích hình phẳng giới hạn bởi parabol y = x² và đường thẳng y = ${cf(k)}x bằng:`,
+    correct:S,wrongs:[frS(k**3,3),frS(k**3,2),frS(k**2,6),frS(k**3,6)+'π'],pad:()=>frS(ri(1,40),ri(2,9)),
+    why:`Giao điểm: x² = ${cf(k)}x ⇒ x = 0 hoặc x = ${k}. Trên [0; ${k}] đường thẳng nằm trên parabol nên S = ${Id(0,k,`(${cf(k)}x − x²)`)} = [${frS(k,2)}x² − ${fr('x³',3)}]<sub>0</sub><sup>${k}</sup> = ${S}.`,
+    fig:{curves:[{fn:g,x0:-0.3,x1:k+0.4,c:0,l:'y=x²'},{fn:f,x0:-0.3,x1:k+0.4,c:1,l:`y=${cf(k)}x`}],shade:{f:f,g:g,a:0,b:k}},
+    chk:{int:[x=>f(x)-g(x),0,k,k**3/6]}};
+});
+GEN[6].push(()=>{
+  const a=ri(1,3),b=ri(1,3),S=frS(a*b**3,3);
+  const f=x=>a*x*x;
+  return{t:`Diện tích hình phẳng giới hạn bởi đồ thị hàm số y = ${a===1?'':a}x², trục hoành và hai đường thẳng x = 0, x = ${b} bằng:`,
+    correct:S,wrongs:[frS(a*b**2,2),frS(a*b**3,2),frS(a*b**3,3)+'π',frS(a*b**4,4)],pad:()=>frS(ri(1,40),ri(2,9)),
+    why:`Vì ${a===1?'':a}x² ≥ 0 trên [0; ${b}] nên S = ${Id(0,b,`${a===1?'':a}x²`)} = [${frS(a,3)}x³]<sub>0</sub><sup>${b}</sup> = ${S}.`,
+    fig:{curves:[{fn:f,x0:-0.3,x1:b+0.4,c:0,l:`y=${a===1?'':a}x²`}],shade:{f:f,g:null,a:0,b:b}},chk:{int:[f,0,b,a*b**3/3]}};
+});
+GEN[6].push(()=>{
+  const a=ri(1,4),f=x=>a*Math.sin(x);
+  return{t:`Diện tích hình phẳng giới hạn bởi đồ thị hàm số y = ${a===1?'':a}sin x, trục hoành và hai đường thẳng x = 0, x = π bằng:`,
+    correct:N(2*a),wrongs:[N(a),N(0),N(4*a),N(2*a)+'π'],pad:()=>N(ri(1,12)),
+    why:`Trên [0; π], sin x ≥ 0 nên S = ${Id(0,'π',`${a===1?'':a}sin x`)} = [−${a===1?'':a}cos x]<sub>0</sub><sup>π</sup> = ${a} + ${a} = ${2*a}.`,
+    fig:{curves:[{fn:f,x0:-0.3,x1:Math.PI+0.3,c:0,l:`y=${a===1?'':a}sin x`}],shade:{f:f,g:null,a:0,b:Math.PI}},chk:{int:[f,0,Math.PI,2*a]}};
+});
+GEN[6].push(()=>{
+  const k=ri(1,3);
+  const T=[
+    {f:'√x',fn:Math.sqrt,n:k*k,d:2,m:'x',x0:0},
+    {f:'x',fn:x=>x,n:k**3,d:3,m:'x²',x0:-0.3},
+    {f:'x²',fn:x=>x*x,n:k**5,d:5,m:'x⁴',x0:-0.3}
+  ];
+  const t=pick(T),V=piS(t.n,t.d);
+  const alts=[[k*k,2],[k**3,3],[k**5,5],[k**4,4]].filter(([n,d])=>!(R(n,d)[0]===R(t.n,t.d)[0]&&R(n,d)[1]===R(t.n,t.d)[1]));
+  return{t:`Thể tích khối tròn xoay khi quay hình phẳng giới hạn bởi đồ thị y = ${t.f}, trục hoành và hai đường thẳng x = 0, x = ${k} quanh trục Ox bằng:`,
+    correct:V,wrongs:[...alts.map(([n,d])=>piS(n,d)),frS(t.n,t.d)],pad:()=>piS(ri(1,40),ri(2,9)),
+    why:`V = π ${Id(0,k,`[f(x)]²`)} = π ${Id(0,k,t.m)} = ${V}.`,
+    fig:{curves:[{fn:t.fn,x0:t.x0,x1:k+0.4,c:0,l:`y=${t.f}`}],shade:{f:t.fn,g:null,a:0,b:k}},
+    chk:{int:[x=>Math.PI*t.fn(x)**2,0,k,Math.PI*t.n/t.d]}};
+});
+GEN[6].push(()=>{
+  const a=2*ri(1,3),b=nz(1,6),t1=ri(0,2),t2=t1+ri(2,4);
+  const s=a/2*(t2*t2-t1*t1)+b*(t2-t1);
+  return{t:`Một vật chuyển động thẳng với vận tốc v(t) = ${a}t + ${b} (m/s). Quãng đường vật đi được từ thời điểm t = ${t1} s đến t = ${t2} s là:`,
+    correct:`${s} m`,wrongs:[`${a*t2+b} m`,`${a*(t2-t1)+b} m`,`${s+b} m`,`${s-a} m`],pad:()=>`${s+ri(-9,9)} m`,
+    why:`Quãng đường s = ${Id(t1,t2,`(${a}t + ${b})`)} = [${a/2}t² + ${b}t]<sub>${t1}</sub><sup>${t2}</sup> = ${a/2*t2*t2+b*t2} − ${a/2*t1*t1+b*t1} = ${s} m.`,
+    fig:{curves:[{fn:x=>a*x+b,x0:0,x1:t2+0.5,c:0,l:'v(t)'}],shade:{f:x=>a*x+b,g:null,a:t1,b:t2}},chk:{int:[x=>a*x+b,t1,t2,s]}};
+});
+
+function build(spec){
+  const seen=new Set([spec.correct]);let w=[];
+  for(const x of spec.wrongs){if(!seen.has(x)){seen.add(x);w.push(x)}}
+  w=shuffle(w).slice(0,3);
+  let t=0;while(w.length<3&&t++<400){const x=spec.pad();if(!seen.has(x)){seen.add(x);w.push(x)}}
+  const opts=shuffle([spec.correct,...w]);
+  return{...spec,opts,ans:opts.indexOf(spec.correct)};
+}
+function makeQ(type){return build(pick(GEN[type])())}
+//GEN>
+
+const TOPICS=[
+ {id:1,name:'Nguyên hàm cơ bản',f:`${I('x<sup>n</sup>')} = ${fr('x<sup>n+1</sup>','n + 1')} + <i>C</i>, ${I('sin x')} = −cos x + <i>C</i>, ${I('e<sup>x</sup>')} = e<sup>x</sup> + <i>C</i>`},
+ {id:2,name:'Tổng, hằng số nhân, hàm f(ax + b)',f:`${I('(ax + b)<sup>n</sup>')} = ${fr('(ax + b)<sup>n+1</sup>','a(n + 1)')} + <i>C</i>`},
+ {id:3,name:'Nguyên hàm có điều kiện',f:`F′(x) = f(x), F(x<sub>0</sub>) = y<sub>0</sub> ⇒ tìm hằng số <i>C</i>`},
+ {id:4,name:'Tích phân và tính chất',f:`${Id('a','b','f(x)')} = F(b) − F(a), ${Id('a','b','f(x)')} = ${Id('a','c','f(x)')} + ${Id('c','b','f(x)')}`},
+ {id:5,name:'Tích phân hàm mũ, lượng giác, 1/x',f:`${Id(0,'π','sin x')} = 2, ${Id(1,'e',fr(1,'x'))} = 1, ${Id(0,1,'e<sup>x</sup>')} = e − 1`},
+ {id:6,name:'Ứng dụng: diện tích, thể tích, quãng đường',f:`S = ${Id('a','b','|f(x) − g(x)|')}, V = π ${Id('a','b','[f(x)]²')}`}
+];
+
+const $=s=>document.querySelector(s);
+const store={
+  get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+};
+const S={mode:'practice',type:1,types:[1,2,3,4,5,6],q:null,done:false,score:0,streak:0,best:0,ok:0,total:0,name:''};
+const WIN=20;
+
+function show(id){
+  for(const s of ['home','setup','quiz','result'])$('#'+s).hidden=s!==id;
+  window.scrollTo(0,0);
+  if(id==='home')renderBoard();
+}
+function renderRecord(){$('#record').textContent=store.get('ngtp_record',0)}
+
+/* home */
+function renderHome(){
+  $('#topics').innerHTML=TOPICS.map(t=>`<button class="topic" type="button" data-type="${t.id}"><span class="tag">Dạng ${t.id}</span><h3>${t.name}</h3><span class="f">${t.f}</span></button>`).join('');
+  $('#checks').innerHTML=TOPICS.map(t=>`<label class="check"><input type="checkbox" value="${t.id}" checked><span>${t.id}. ${t.name}</span></label>`).join('');
+}
+function renderBoard(){
+  const h=store.get('ngtp_hist',[]);
+  $('#board').hidden=!h.length;
+  $('#boardBody').innerHTML=h.slice(0,8).map(r=>`<tr><td>${esc(r.name)}</td><td>${r.score}</td><td>${r.best}/${WIN}</td><td>${r.win?'Thắng':'Chưa thắng'}</td><td>${r.date}</td></tr>`).join('');
+}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* quiz */
+function startPractice(type){
+  Object.assign(S,{mode:'practice',type,score:0,streak:0,best:0,ok:0,total:0});
+  $('#progWrap').hidden=true;
+  show('quiz');nextQ();
+}
+function startChallenge(){
+  const name=$('#name').value.trim();
+  const types=[...document.querySelectorAll('#checks input:checked')].map(i=>+i.value);
+  if(!name){$('#setupMsg').textContent='Hãy nhập họ và tên học sinh.';$('#name').focus();return}
+  if(!types.length){$('#setupMsg').textContent='Hãy chọn ít nhất một dạng.';return}
+  $('#setupMsg').textContent='';
+  Object.assign(S,{mode:'challenge',name,types,score:0,streak:0,best:0,ok:0,total:0});
+  $('#progWrap').hidden=false;
+  show('quiz');nextQ();
+}
+function renderStats(){
+  const rec=store.get('ngtp_record',0);
+  $('#stats').innerHTML=S.mode==='challenge'
+    ?`<span class="chip">${esc(S.name)}</span><span class="chip">Điểm: <b>${S.score}</b></span><span class="chip">Chuỗi: <b>${S.streak}/${WIN}</b></span>`
+    :`<span class="chip">Đúng: <b>${S.ok}/${S.total}</b></span><span class="chip">Chuỗi: <b>${S.streak}</b></span>`;
+  $('#prog').style.width=(S.streak/WIN*100)+'%';
+}
+function nextQ(){
+  const type=S.mode==='challenge'?pick(S.types):S.type;
+  S.q=makeQ(type);S.done=false;S.curType=type;
+  $('#qtitle').textContent=`Dạng ${type} · ${TOPICS[type-1].name}`;
+  $('#qtext').innerHTML=S.q.t;
+  $('#opts').innerHTML=S.q.opts.map((o,i)=>`<button class="opt" type="button" data-i="${i}"><span class="k">${'ABCD'[i]}</span><span>${o}</span></button>`).join('');
+  $('#fb').hidden=true;
+  renderStats();
+}
+function answer(i){
+  if(S.done||!S.q)return;
+  S.done=true;
+  const good=i===S.q.ans;
+  S.total++;
+  if(good){S.ok++;S.streak++;S.best=Math.max(S.best,S.streak);if(S.mode==='challenge')S.score++}
+  else{S.streak=0;if(S.mode==='challenge')S.score-=2}
+  document.querySelectorAll('.opt').forEach((b,k)=>{
+    b.disabled=true;
+    if(k===S.q.ans){b.classList.add('right');b.querySelector('.k').textContent='✓'}
+    else if(k===i){b.classList.add('wrong');b.querySelector('.k').textContent='✕'}
+  });
+  const v=$('#verdict');
+  v.className='verdict '+(good?'ok':'no');
+  v.textContent=good?(S.mode==='challenge'?'Chính xác! +1 điểm':'Chính xác!'):(S.mode==='challenge'?`Chưa đúng, đáp án là ${'ABCD'[S.q.ans]}. −2 điểm, chuỗi về 0.`:`Chưa đúng, đáp án là ${'ABCD'[S.q.ans]}.`);
+  $('#why').innerHTML=S.q.why;
+  $('#figure').innerHTML=drawFig(S.q.fig);
+  $('#fb').hidden=false;
+  const won=S.mode==='challenge'&&S.streak>=WIN;
+  $('#btnNext').textContent=won?'Xem kết quả ➔':'Câu tiếp theo ➔';
+  $('#btnNext').focus({preventScroll:true});
+  renderStats();
+  if(S.mode==='challenge'){ if(S.score>store.get('ngtp_record',0)){store.set('ngtp_record',S.score);renderRecord()} }
+}
+function onNext(){
+  if(!S.done)return;
+  if(S.mode==='challenge'&&S.streak>=WIN)return finish(true);
+  nextQ();
+}
+function finish(win){
+  if(S.mode==='challenge'&&S.total>0){
+    const h=store.get('ngtp_hist',[]);
+    h.unshift({name:S.name,score:S.score,best:S.best,win:!!win,date:new Date().toLocaleDateString('vi-VN')});
+    store.set('ngtp_hist',h.slice(0,30));
+    if(S.score>store.get('ngtp_record',0))store.set('ngtp_record',S.score);
+    renderRecord();
+    $('#resName').textContent=S.name;
+    $('#resScore').textContent=S.score+' điểm';
+    $('#resMsg').textContent=win?`Chúc mừng, bạn đã trả lời đúng ${WIN} câu liên tiếp!`:`Chuỗi đúng dài nhất của bạn là ${S.best}/${WIN}. Thử lại để vượt qua nhé.`;
+    $('#resSum').innerHTML=`<div><b>${S.ok}/${S.total}</b><span>Số câu đúng</span></div><div><b>${S.best}/${WIN}</b><span>Chuỗi dài nhất</span></div><div><b>${S.total?Math.round(S.ok/S.total*100):0}%</b><span>Tỉ lệ đúng</span></div>`;
+    show('result');
+  }else show('home');
+}
+
+/* figure */
+function drawFig(f){
+  if(!f)return '';
+  const X=[0],Y=[0];
+  (f.pts||[]).forEach(p=>{X.push(p[1]);Y.push(p[2])});
+  (f.vecs||[]).forEach(v=>{X.push(v.a[0],v.b[0]);Y.push(v.a[1],v.b[1])});
+  (f.poly||[]).forEach(p=>{X.push(p[0]);Y.push(p[1])});
+  const smp=(fn,a,b,n=90)=>{const o=[];for(let i=0;i<=n;i++){const x=a+(b-a)*i/n;o.push([x,fn(x)])}return o};
+  (f.curves||[]).forEach(c=>smp(c.fn,c.x0,c.x1).forEach(p=>{if(isFinite(p[1])){X.push(p[0]);Y.push(Math.max(-30,Math.min(30,p[1])))}}));
+  let x0=Math.min(...X)-0.6,x1=Math.max(...X)+0.6,y0=Math.min(...Y)-0.6,y1=Math.max(...Y)+0.6;
+  const span=Math.max(x1-x0,y1-y0,6),cx=(x0+x1)/2,cy=(y0+y1)/2;
+  x0=cx-span/2;x1=cx+span/2;y0=cy-span/2;y1=cy+span/2;
+  const W=300,s=W/span,sx=x=>((x-x0)*s).toFixed(1),sy=y=>(W-(y-y0)*s).toFixed(1);
+  const step=span<=14?1:span<=28?2:5;
+  let g='',tk='';
+  for(let i=Math.ceil(x0/step)*step;i<=x1;i+=step){g+=`<line class="g-grid" x1="${sx(i)}" y1="0" x2="${sx(i)}" y2="${W}"/>`;if(i!==0)tk+=`<text class="g-tick" x="${sx(i)}" y="${+sy(0)+11}" text-anchor="middle">${N(i)}</text>`}
+  for(let j=Math.ceil(y0/step)*step;j<=y1;j+=step){g+=`<line class="g-grid" x1="0" y1="${sy(j)}" x2="${W}" y2="${sy(j)}"/>`;if(j!==0)tk+=`<text class="g-tick" x="${+sx(0)-4}" y="${+sy(j)+3}" text-anchor="end">${N(j)}</text>`}
+  const ax=`<line class="g-axis" x1="0" y1="${sy(0)}" x2="${W}" y2="${sy(0)}"/><line class="g-axis" x1="${sx(0)}" y1="0" x2="${sx(0)}" y2="${W}"/>
+    <text class="g-tick" x="${W-8}" y="${+sy(0)-5}">x</text><text class="g-tick" x="${+sx(0)+5}" y="9">y</text><text class="g-tick" x="${+sx(0)-9}" y="${+sy(0)+11}">O</text>`;
+  const mk=[0,1,2].map(c=>`<marker id="ah${c}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="mk${c}" d="M0 0L10 5L0 10z"/></marker>`).join('');
+  let shade='';
+  if(f.shade){
+    const sh=f.shade,top=smp(sh.f,sh.a,sh.b),bot=sh.g?smp(sh.g,sh.a,sh.b):[[sh.a,0],[sh.b,0]];
+    const pts=top.concat(bot.slice().reverse()).map(p=>sx(p[0])+','+sy(p[1])).join(' ');
+    shade=`<polygon class="g-fill" points="${pts}"/>`;
+  }
+  const cv=(f.curves||[]).map(c=>{
+    const pts=smp(c.fn,c.x0,c.x1).filter(p=>isFinite(p[1])&&Math.abs(p[1])<=30);
+    const e=pts[pts.length-1];
+    return `<polyline class="g-v${c.c}" points="${pts.map(p=>sx(p[0])+','+sy(p[1])).join(' ')}"/><text class="g-txt" x="${Math.min(+sx(e[0])+4,W-34)}" y="${Math.max(+sy(e[1])-6,12)}">${c.l}</text>`;
+  }).join('');
+  let poly='';
+  if(f.poly&&f.poly.length)poly=`<polyline class="g-poly" points="${f.poly.map(p=>sx(p[0])+','+sy(p[1])).join(' ')}"/>`;
+  const vs=(f.vecs||[]).map(v=>{
+    const mx=(+sx(v.a[0])+ +sx(v.b[0]))/2,my=(+sy(v.a[1])+ +sy(v.b[1]))/2;
+    return `<line class="g-v${v.c}" x1="${sx(v.a[0])}" y1="${sy(v.a[1])}" x2="${sx(v.b[0])}" y2="${sy(v.b[1])}" marker-end="url(#ah${v.c})"/><text class="g-txt" x="${mx+5}" y="${my-5}">${v.l}</text>`;
+  }).join('');
+  const ps=(f.pts||[]).map(p=>`<circle class="g-pt" cx="${sx(p[1])}" cy="${sy(p[2])}" r="3.5"/><text class="g-txt" x="${+sx(p[1])+6}" y="${+sy(p[2])-6}">${p[0]}</text>`).join('');
+  return `<svg viewBox="0 0 ${W} ${W}" role="img" aria-label="Hình minh họa trên hệ trục Oxy"><defs>${mk}</defs>${g}${shade}${ax}${tk}${poly}${cv}${vs}${ps}</svg>`;
+}
+
+/* events */
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button');if(!t)return;
+  if(t.dataset.type)return startPractice(+t.dataset.type);
+  if(t.dataset.i!==undefined&&t.classList.contains('opt'))return answer(+t.dataset.i);
+  if(t.dataset.go)return show(t.dataset.go);
+});
+$('#btnChallenge').onclick=()=>{$('#setupMsg').textContent='';show('setup');$('#name').focus()};
+$('#btnStart').onclick=startChallenge;
+$('#btnNext').onclick=onNext;
+$('#btnExit').onclick=()=>finish(false);
+$('#btnAgain').onclick=()=>{show('setup')};
+$('#btnClear').onclick=()=>{store.set('ngtp_hist',[]);renderBoard()};
+$('#btnBig').onclick=()=>{
+  const on=document.body.classList.toggle('big');
+  $('#btnBig').setAttribute('aria-pressed',on);
+  try{if(on&&document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(()=>{});else if(!on&&document.fullscreenElement)document.exitFullscreen().catch(()=>{})}catch(e){}
+};
+$('#name').addEventListener('keydown',e=>{if(e.key==='Enter')startChallenge()});
+document.addEventListener('keydown',e=>{
+  if($('#quiz').hidden||e.target.tagName==='INPUT')return;
+  const k=e.key.toLowerCase(),m={'1':0,'2':1,'3':2,'4':3,a:0,b:1,c:2,d:3};
+  if(!S.done&&k in m&&m[k]<4)answer(m[k]);
+  else if(S.done&&(k==='enter')){e.preventDefault();onNext()}
+});
+
+renderHome();renderRecord();renderBoard();show('home');
+</script>
+
+</body>
+</html>
