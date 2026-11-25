@@ -262,7 +262,7 @@ const anti=terms=>terms.map(t=>({c:R(t.c[0],t.c[1]*(t.e+1)),e:t.e+1}));
 const pv=(cs,x)=>cs.reduce((s,[c,e])=>s+c*Math.pow(x,e),0);
 const signedFr=(num,den)=>Math.abs(den)===1?(den<0?'−':'')+num:`${den<0?'−':''}${fr(num,Math.abs(den))}`;
 
-const GEN={1:[],2:[],3:[],4:[],5:[],6:[]};
+const GEN={1:[],2:[],3:[],4:[],5:[],6:[],7:[]};
 
 /* ---- Dạng 1: nguyên hàm cơ bản ---- */
 GEN[1].push(()=>{
@@ -484,6 +484,60 @@ GEN[6].push(()=>{
     fig:{curves:[{fn:x=>a*x+b,x0:0,x1:t2+0.5,c:0,l:'v(t)'}],shade:{f:x=>a*x+b,g:null,a:t1,b:t2}},chk:{int:[x=>a*x+b,t1,t2,s]}};
 });
 
+/* ---- Dạng 7: bài toán thực tế ---- */
+GEN[7].push(()=>{
+  const a=pick([2,4,6]),T=ri(2,5),v0=a*T,s=a*T*T/2;
+  return{t:`Một ô tô đang chạy với vận tốc ${v0} m/s thì người lái đạp phanh. Từ lúc đạp phanh, ô tô chuyển động chậm dần với vận tốc v(t) = −${a}t + ${v0} (m/s), trong đó t là thời gian tính bằng giây kể từ lúc đạp phanh. Từ lúc đạp phanh đến khi xe dừng hẳn, ô tô đi được bao nhiêu mét?`,
+    correct:`${s} m`,wrongs:[`${a*T*T} m`,`${v0} m`,`${s+v0} m`,`${s-a} m`],pad:()=>`${s+ri(-9,9)} m`,
+    why:`Xe dừng khi v(t) = 0 ⇔ t = ${T} s. Quãng đường s = ${Id(0,T,`(−${a}t + ${v0})`)} = [−${a/2}t² + ${v0}t]<sub>0</sub><sup>${T}</sup> = ${s} m.`,
+    fig:{curves:[{fn:x=>v0-a*x,x0:0,x1:T+0.5,c:0,l:'v(t)'}],shade:{f:x=>v0-a*x,g:null,a:0,b:T}},chk:{int:[x=>v0-a*x,0,T,s]}};
+});
+GEN[7].push(()=>{
+  const a=ri(1,3),b=ri(3,12),W0=pick([0,40,100,200]),T=ri(2,6),ans=W0+a*T*T+b*T;
+  return{t:`Nước được bơm vào một bể với tốc độ f(t) = ${2*a}t + ${b} (lít/phút), t tính bằng phút kể từ lúc bắt đầu bơm. Lúc đầu trong bể có ${W0} lít nước. Sau ${T} phút, trong bể có bao nhiêu lít nước?`,
+    correct:`${ans} lít`,wrongs:[`${a*T*T+b*T} lít`,`${W0+2*a*T+b} lít`,`${W0+2*a*T*T+b*T} lít`,`${ans+b} lít`],pad:()=>`${ans+ri(-12,12)} lít`,
+    why:`Lượng nước bơm thêm sau ${T} phút là ${Id(0,T,`(${2*a}t + ${b})`)} = [${a}t² + ${b}t]<sub>0</sub><sup>${T}</sup> = ${a*T*T+b*T} lít. Cộng lượng nước ban đầu: ${W0} + ${a*T*T+b*T} = ${ans} lít.`,
+    fig:{curves:[{fn:x=>2*a*x+b,x0:0,x1:T+0.5,c:0,l:'f(t)'}],shade:{f:x=>2*a*x+b,g:null,a:0,b:T}},chk:{int:[x=>2*a*x+b,0,T,a*T*T+b*T]}};
+});
+GEN[7].push(()=>{
+  const m=ri(1,3),b=ri(10,60),N0=pick([1000,2000,5000]),T=ri(2,5),ans=N0+m*T**3+b*T;
+  return{t:`Số lượng vi khuẩn trong một mẻ cấy tăng với tốc độ N′(t) = ${3*m}t² + ${b} (con/giờ), t tính bằng giờ. Ban đầu có ${N0} con. Sau ${T} giờ, số vi khuẩn là:`,
+    correct:`${ans} con`,wrongs:[`${m*T**3+b*T} con`,`${N0+3*m*T*T+b} con`,`${N0+3*m*T**3+b*T} con`,`${ans+N0} con`],pad:()=>`${ans+ri(-60,60)} con`,
+    why:`N(t) = N(0) + ${Id(0,T,`(${3*m}t² + ${b})`)} = ${N0} + [${m}t³ + ${b}t]<sub>0</sub><sup>${T}</sup> = ${N0} + ${m*T**3+b*T} = ${ans} con.`,
+    fig:null,chk:{int:[x=>3*m*x*x+b,0,T,m*T**3+b*T]}};
+});
+GEN[7].push(()=>{
+  const a=ri(1,3),b=pick([10,15,20,30]),F=pick([100,200,500]),q=pick([10,20,30,40]),ans=a*q*q+b*q+F;
+  return{t:`Chi phí cận biên để sản xuất thêm một sản phẩm khi đã sản xuất x sản phẩm là C′(x) = ${2*a}x + ${b} (nghìn đồng). Chi phí cố định là ${F} nghìn đồng (tức C(0) = ${F}). Tính chi phí để sản xuất ${q} sản phẩm đầu tiên.`,
+    correct:`${ans} nghìn đồng`,wrongs:[`${a*q*q+b*q} nghìn đồng`,`${2*a*q+b+F} nghìn đồng`,`${2*a*q*q+b*q+F} nghìn đồng`,`${ans+b} nghìn đồng`],pad:()=>`${ans+ri(-9,9)*10} nghìn đồng`,
+    why:`C(x) = ${Id(0,'x',`(${2*a}t + ${b})`)} + C(0) = ${a}x² + ${b}x + ${F}. Thay x = ${q}: C(${q}) = ${a*q*q} + ${b*q} + ${F} = ${ans} nghìn đồng.`,
+    fig:null,chk:{int:[x=>2*a*x+b,0,q,a*q*q+b*q]}};
+});
+GEN[7].push(()=>{
+  let w,h;do{w=pick([4,6,8,10,12]);h=pick([3,4,5,6])}while((w*h)%3!==0);
+  const S=2*w*h/3,p=pick([20,30,50]),ans=S*p;
+  const fn=x=>h-4*h*x*x/(w*w);
+  return{t:`Một cổng vòm có dạng parabol, chiều rộng đáy ${w} m và chiều cao ${h} m. Người ta sơn mặt trước của cổng (phần giới hạn bởi parabol và mặt đất) với giá ${p} nghìn đồng/m². Chi phí sơn là:`,
+    correct:`${ans} nghìn đồng`,wrongs:[`${w*h*p} nghìn đồng`,`${w*h*p/2} nghìn đồng`,`${S} nghìn đồng`,`${w*h*p/3} nghìn đồng`],pad:()=>`${ans+ri(-6,6)*p} nghìn đồng`,
+    why:`Chọn hệ trục có gốc tại tâm đáy cổng: parabol y = ${h} − ${frS(4*h,w*w)}x². Diện tích S = ${Id(`−${w/2}`,w/2,`(${h} − ${frS(4*h,w*w)}x²)`)} = ${S} m². Chi phí = ${S} · ${p} = ${ans} nghìn đồng.`,
+    fig:{curves:[{fn:fn,x0:-w/2,x1:w/2,c:0,l:'parabol'}],shade:{f:fn,g:null,a:-w/2,b:w/2}},chk:{int:[fn,-w/2,w/2,S]}};
+});
+GEN[7].push(()=>{
+  const r=pick([3,6,9]),h=ri(2,8),V=r*r*h/3;
+  const fn=x=>r*x/h;
+  return{t:`Một cái phễu hình nón có chiều cao ${h} cm và bán kính đáy ${r} cm. Coi phễu là khối tròn xoay sinh ra khi quay hình phẳng giới hạn bởi đường thẳng y = ${frS(r,h)}x, trục hoành và đường thẳng x = ${h} quanh trục Ox. Thể tích của phễu là:`,
+    correct:`${V}π cm³`,wrongs:[`${r*r*h}π cm³`,`${V*3/2}π cm³`,`${V} cm³`,`${r*h/3}π cm³`],pad:()=>`${V+ri(-5,5)}π cm³`,
+    why:`V = π ${Id(0,h,`(${frS(r,h)}x)²`)} = π · ${frS(r*r,h*h)} · [${fr('x³',3)}]<sub>0</sub><sup>${h}</sup> = ${V}π cm³ (trùng với công thức ${fr(1,3)}πr²h).`,
+    fig:{curves:[{fn:fn,x0:0,x1:h+0.5,c:0,l:'y=(r/h)x'}],shade:{f:fn,g:null,a:0,b:h}},chk:{int:[x=>Math.PI*fn(x)**2,0,h,Math.PI*V]}};
+});
+GEN[7].push(()=>{
+  const c=ri(1,6),v0=ri(0,10),T=ri(2,5),ans=3*T*T+c*T+v0;
+  return{t:`Một vật chuyển động thẳng với gia tốc a(t) = 6t + ${c} (m/s²). Vận tốc ban đầu của vật là ${v0} m/s. Vận tốc của vật tại thời điểm t = ${T} s là:`,
+    correct:`${ans} m/s`,wrongs:[`${3*T*T+c*T} m/s`,`${6*T+c+v0} m/s`,`${6*T+c} m/s`,`${ans+c} m/s`],pad:()=>`${ans+ri(-8,8)} m/s`,
+    why:`Vận tốc là nguyên hàm của gia tốc: v(t) = 3t² + ${c}t + C. Từ v(0) = ${v0} suy ra C = ${v0}. Vậy v(${T}) = ${3*T*T} + ${c*T} + ${v0} = ${ans} m/s.`,
+    fig:null,chk:{int:[x=>6*x+c,0,T,3*T*T+c*T]}};
+});
+
 function build(spec){
   const seen=new Set([spec.correct]);let w=[];
   for(const x of spec.wrongs){if(!seen.has(x)){seen.add(x);w.push(x)}}
@@ -501,7 +555,8 @@ const TOPICS=[
  {id:3,name:'Nguyên hàm có điều kiện',f:`F′(x) = f(x), F(x<sub>0</sub>) = y<sub>0</sub> ⇒ tìm hằng số <i>C</i>`},
  {id:4,name:'Tích phân và tính chất',f:`${Id('a','b','f(x)')} = F(b) − F(a), ${Id('a','b','f(x)')} = ${Id('a','c','f(x)')} + ${Id('c','b','f(x)')}`},
  {id:5,name:'Tích phân hàm mũ, lượng giác, 1/x',f:`${Id(0,'π','sin x')} = 2, ${Id(1,'e',fr(1,'x'))} = 1, ${Id(0,1,'e<sup>x</sup>')} = e − 1`},
- {id:6,name:'Ứng dụng: diện tích, thể tích, quãng đường',f:`S = ${Id('a','b','|f(x) − g(x)|')}, V = π ${Id('a','b','[f(x)]²')}`}
+ {id:6,name:'Ứng dụng: diện tích, thể tích, quãng đường',f:`S = ${Id('a','b','|f(x) − g(x)|')}, V = π ${Id('a','b','[f(x)]²')}`},
+ {id:7,name:'Bài toán thực tế',f:`Lập mô hình f(t), tính ${Id('a','b','f(t)')}, trả lời theo đơn vị của bài`}
 ];
 
 const $=s=>document.querySelector(s);
